@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { WikiCard } from './components/WikiCard'
 import { useWikiArticles } from './hooks/useWikiArticles'
 
@@ -87,7 +87,5 @@ function App() {
     </div>
   )
 }
-// <div ref={observerTarget} />
-// {loading && <span>Loading...</span>}
 
 export default App
