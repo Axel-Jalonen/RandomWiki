@@ -3,7 +3,6 @@ import { WikiCard } from './components/WikiCard'
 import { useWikiArticles } from './hooks/useWikiArticles'
 import { Loader2 } from 'lucide-react'
 import { Analytics } from "@vercel/analytics/react"
-import { LanguageSelector } from './components/LanguageSelector'
 
 function App() {
   const [showAbout, setShowAbout] = useState(false)
@@ -48,14 +47,13 @@ function App() {
         </button>
       </div>
 
-      <div className="fixed top-4 right-4 z-50 flex flex-col items-end gap-2">
+      <div className="fixed top-4 right-4 z-50">
         <button
           onClick={() => setShowAbout(!showAbout)}
           className="text-sm text-white/70 hover:text-white transition-colors"
         >
           About
         </button>
-        <LanguageSelector />
       </div>
 
       {showAbout && (
