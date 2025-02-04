@@ -44,18 +44,18 @@ function App() {
   }, []);
 
   return (
-    <div className="wikitok-main">
-      <div className="wikitok-toggle-about">
+    <div className="randomwiki-main">
+      <div className="randomwiki-toggle-about">
         <button onClick={() => setShowAbout((prev) => !prev)}>About</button>
       </div>
 
       {showAbout && (
-        <div className="wikitok-about">
+        <div className="randomwiki-about">
           <p>An interface for exploring random Wikipedia articles.</p>
           <p>
             Modified from &nbsp;
             <a
-              href="https://github.com/IsaacGemal/wikitok"
+              href="https://github.com/IsaacGemal/randomwiki"
               target="_blank"
               rel="noopener noreferrer"
             >
