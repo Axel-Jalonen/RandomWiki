@@ -1,113 +1,93 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { WikiCard } from './components/WikiCard'
 import { useWikiArticles } from './hooks/useWikiArticles'
-import { Loader2 } from 'lucide-react'
-import { Analytics } from "@vercel/analytics/react"
+
+import "./styles/app.css";
 
 function App() {
-  const [showAbout, setShowAbout] = useState(false)
-  const { articles, loading, fetchArticles } = useWikiArticles()
-  const observerTarget = useRef(null)
+  const [showAbout, setShowAbout] = useState(false);
+  const { articles, fetchArticles } = useWikiArticles();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false); // To prevent duplicate fetches
 
-  const handleObserver = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const [target] = entries
-      if (target.isIntersecting && !loading) {
-        fetchArticles()
+  // Function to fetch more articles and append them to the list
+  const fetchMoreArticles = async () => {
+    if (loadingMore) return; // Prevent multiple fetches at once
+
+    setLoadingMore(true);
+    fetchArticles(); // This updates `articles` in your context/hook
+    setLoadingMore(false);
+  };
+
+  // Function to move to the next article
+  const nextArticle = () => {
+    setCurrentIndex((prev) => {
+      const nextIndex = prev + 1;
+
+      // Fetch more articles if reaching the last article
+      if (nextIndex >= articles.length - 1) {
+        fetchMoreArticles();
       }
-    },
-    [loading, fetchArticles]
-  )
 
+      return nextIndex;
+    });
+  };
+
+  // Function to move to the previous article (with wrap-around behavior)
+  const prevArticle = () => {
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : 0));
+  };
+
+  // Fetch initial articles when the component mounts
   useEffect(() => {
-    const observer = new IntersectionObserver(handleObserver, {
-      threshold: 0.1,
-      rootMargin: '100px',
-    })
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current)
-    }
-
-    return () => observer.disconnect()
-  }, [handleObserver])
-
-  useEffect(() => {
-    fetchArticles()
-  }, [])
+    fetchArticles();
+  }, []);
 
   return (
-    <div className="h-screen w-full bg-black text-white overflow-y-scroll snap-y snap-mandatory">
-      <div className="fixed top-4 left-4 z-50">
-        <button
-          onClick={() => window.location.reload()}
-          className="text-2xl font-bold text-white drop-shadow-lg hover:opacity-80 transition-opacity"
-        >
-          WikiTok
-        </button>
-      </div>
-
-      <div className="fixed top-4 right-4 z-50">
-        <button
-          onClick={() => setShowAbout(!showAbout)}
-          className="text-sm text-white/70 hover:text-white transition-colors"
-        >
-          About
-        </button>
+    <div className="wikitok-main">
+      <div className="wikitok-toggle-about">
+        <button onClick={() => setShowAbout((prev) => !prev)}>About</button>
       </div>
 
       {showAbout && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-900 p-6 rounded-lg max-w-md relative">
-            <button
-              onClick={() => setShowAbout(false)}
-              className="absolute top-2 right-2 text-white/70 hover:text-white"
+        <div className="wikitok-about">
+          <p>An interface for exploring random Wikipedia articles.</p>
+          <p>
+            Modified from &nbsp;
+            <a
+              href="https://github.com/IsaacGemal/wikitok"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              ✕
-            </button>
-            <h2 className="text-xl font-bold mb-4">About WikiTok</h2>
-            <p className="mb-4">
-              A TikTok-style interface for exploring random Wikipedia articles.
-            </p>
-            <p className="text-white/70">
-              Made with ❤️ by{' '}
-              <a
-                href="https://x.com/Aizkmusic"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white hover:underline"
-              >
-                @Aizkmusic
-              </a>
-            </p>
-            <p className="text-white/70 mt-2">
-              Check out the code on{' '}
-              <a
-                href="https://github.com/IsaacGemal/wikitok"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white hover:underline"
-              >
-                GitHub
-              </a>
-            </p>
-          </div>
+              Isaac Gemal's "WikiTok"
+            </a>.
+          </p>
+          <p>
+            Check out the code on
+            &nbsp;
+            <a href="https://github.com/<name>/new-name">
+              GitHub
+            </a>.
+          </p>
         </div>
       )}
 
-      {articles.map((article) => (
-        <WikiCard key={article.pageid} article={article} />
-      ))}
-      <div ref={observerTarget} className="h-10" />
-      {loading && (
-        <div className="h-screen w-full flex items-center justify-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading...</span>
+      <div className="carousel-container">
+        <button onClick={prevArticle} disabled={articles.length === 0}>◀</button>
+
+        <div className="carousel-content">
+          {articles.length > 0 && (
+            <WikiCard key={articles[currentIndex].pageid} article={articles[currentIndex]} />
+          )}
         </div>
-      )}
-      <Analytics />
+
+        <button onClick={nextArticle} disabled={articles.length === 0}>▶</button>
+
+      </div>
     </div>
   )
 }
+// <div ref={observerTarget} />
+// {loading && <span>Loading...</span>}
 
 export default App
